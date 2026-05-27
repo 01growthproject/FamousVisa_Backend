@@ -12,7 +12,6 @@ const uploadToCloudinary = async (filePath, folderName) => {
 
   // remove temp file after upload
   fs.unlinkSync(filePath);
-  
 
   return result.secure_url;
 };
@@ -68,10 +67,9 @@ export const createClient = async (req, res) => {
       "aadhaarCardNo",
       "panCardNo",
       "fatherName",
-      
+
       "fatherPhone",
       "motherName",
-      
     ];
 
     for (const field of requiredFields) {
@@ -115,15 +113,17 @@ export const createClient = async (req, res) => {
     // Build all upload promises together
     const photoPromise = uploadToCloudinary(
       req.files.photo[0].path,
-      "clients/photos"
+      "FamousData/photos",
     );
 
     const docPromises =
       req.files?.documents?.map((docFile, i) =>
-        uploadToCloudinary(docFile.path, "clients/documents").then((url) => ({
-          documentType: documentsMeta[i]?.documentType || "Other",
-          imageUrl: url,
-        }))
+        uploadToCloudinary(docFile.path, "FamousData/documents").then(
+          (url) => ({
+            documentType: documentsMeta[i]?.documentType || "Other",
+            imageUrl: url,
+          }),
+        ),
       ) || [];
 
     // ✅ Run photo + all docs in parallel
@@ -147,11 +147,13 @@ export const createClient = async (req, res) => {
           : body.biometricData;
 
       const bioPromises = req.files.biometrics.map((bioFile, i) =>
-        uploadToCloudinary(bioFile.path, "clients/biometrics").then((url) => ({
-          fingerType: biometricMeta[i]?.fingerType || "Unknown",
-          fingerprintUrl: url,
-          quality: biometricMeta[i]?.quality || 0,
-        }))
+        uploadToCloudinary(bioFile.path, "FamousData/biometrics").then(
+          (url) => ({
+            fingerType: biometricMeta[i]?.fingerType || "Unknown",
+            fingerprintUrl: url,
+            quality: biometricMeta[i]?.quality || 0,
+          }),
+        ),
       );
 
       clientData.biometricData = await Promise.all(bioPromises);
@@ -280,7 +282,7 @@ export const updateClient = async (req, res) => {
     if (req.files?.photo?.[0]) {
       photoUploadIndex = uploadTasks.length;
       uploadTasks.push(
-        uploadToCloudinary(req.files.photo[0].path, "clients/photos")
+        uploadToCloudinary(req.files.photo[0].path, "FamousData/photos"),
       );
     }
 
@@ -317,8 +319,8 @@ export const updateClient = async (req, res) => {
           uploadTasks.push(
             uploadToCloudinary(
               uploadedDocuments[uploadIndex].path,
-              "clients/documents"
-            )
+              "FamousData/documents",
+            ),
           );
         }
       }
@@ -362,7 +364,7 @@ export const updateClient = async (req, res) => {
         for (const { documentMeta, taskIndex } of docUploadStartIndex) {
           uploadedDocMap.set(
             Number(documentMeta?.uploadIndex),
-            uploadResults[taskIndex]
+            uploadResults[taskIndex],
           );
         }
       }
@@ -390,7 +392,7 @@ export const updateClient = async (req, res) => {
           ) {
             // delete old doc in background
             deleteFromCloudinary(previousDocument.imageUrl).catch(
-              console.error
+              console.error,
             );
           }
           continue;
@@ -414,11 +416,13 @@ export const updateClient = async (req, res) => {
       const biometricMeta = JSON.parse(body.biometricData);
 
       const bioPromises = req.files.biometrics.map((bioFile, i) =>
-        uploadToCloudinary(bioFile.path, "clients/biometrics").then((url) => ({
-          fingerType: biometricMeta[i]?.fingerType || "Unknown",
-          fingerprintUrl: url,
-          quality: biometricMeta[i]?.quality || 0,
-        }))
+        uploadToCloudinary(bioFile.path, "FamousData/biometrics").then(
+          (url) => ({
+            fingerType: biometricMeta[i]?.fingerType || "Unknown",
+            fingerprintUrl: url,
+            quality: biometricMeta[i]?.quality || 0,
+          }),
+        ),
       );
 
       updateData.biometricData = await Promise.all(bioPromises);
@@ -464,7 +468,7 @@ export const updateClientStatus = async (req, res) => {
     const client = await Client.findByIdAndUpdate(
       id,
       { registrationStatus, remarks },
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json({

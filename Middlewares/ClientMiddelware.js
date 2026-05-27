@@ -6,7 +6,7 @@ import cloudinary from "../Config/cloudinary.js";
 const photoStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "growth-clients/photos",
+    folder: "FamousData/photos",
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
     transformation: [{ width: 800, height: 800, crop: "limit" }],
   },
@@ -16,7 +16,7 @@ const photoStorage = new CloudinaryStorage({
 const documentStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "growth-clients/documents",
+    folder: "FamousData/documents",
     allowed_formats: ["jpg", "jpeg", "png", "pdf"],
   },
 });
@@ -25,7 +25,7 @@ const documentStorage = new CloudinaryStorage({
 const biometricStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "growth-clients/biometrics",
+    folder: "FamousData/biometrics",
     allowed_formats: ["jpg", "jpeg", "png"],
   },
 });
