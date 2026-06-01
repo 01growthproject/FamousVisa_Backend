@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-// ✅ GET CREDENTIALS FROM .env (FRONTEND की तरह)
-const STATIC_EMAIL = process.env.VITE_DEMO_EMAIL || "Famous@gmail.com";
-const STATIC_PASSWORD = process.env.VITE_DEMO_PASSWORD || "Famous123";
+// Backend env variables — VITE_ prefix nahi (wo sirf frontend ke liye hota hai)
+const STATIC_EMAIL = process.env.DEMO_EMAIL || "Famous@gmail.com";
+const STATIC_PASSWORD = process.env.DEMO_PASSWORD || "Famous123";
 const STATIC_USER_ID = "admin_static_001";
 
 const generateToken = (userId) => {
@@ -37,12 +37,10 @@ export const login = async (req, res) => {
       });
     }
 
-    // ✅ LOGIN WITH ENV CREDENTIALS
     if (
       email.toLowerCase().trim() === STATIC_EMAIL.toLowerCase().trim() &&
       password === STATIC_PASSWORD
     ) {
-      // ✅ LOGIN SUCCESS
       const accessToken = generateToken(STATIC_USER_ID);
       const refreshToken = generateRefreshToken(STATIC_USER_ID);
 
@@ -60,7 +58,6 @@ export const login = async (req, res) => {
         },
       });
     } else {
-      // ❌ INVALID CREDENTIALS
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
@@ -77,19 +74,10 @@ export const login = async (req, res) => {
 };
 
 export const register = async (req, res) => {
-  try {
-    return res.status(403).json({
-      success: false,
-      message: "Registration is disabled. Please use demo credentials from .env",
-    });
-  } catch (error) {
-    console.error("Register error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
+  return res.status(403).json({
+    success: false,
+    message: "Registration is disabled.",
+  });
 };
 
 export const refreshToken = async (req, res) => {
@@ -105,7 +93,7 @@ export const refreshToken = async (req, res) => {
 
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_SECRET + "_refresh"
+      process.env.JWT_SECRET + "_refresh",
     );
     const newAccessToken = generateToken(decoded.id);
 
@@ -122,35 +110,17 @@ export const refreshToken = async (req, res) => {
 };
 
 export const changePassword = async (req, res) => {
-  try {
-    return res.status(403).json({
-      success: false,
-      message: "Cannot change demo credentials",
-    });
-  } catch (error) {
-    console.error("Change password error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
+  return res.status(403).json({
+    success: false,
+    message: "Cannot change demo credentials",
+  });
 };
 
 export const logout = async (req, res) => {
-  try {
-    return res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    console.error("Logout error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };
 
 export const getUserProfile = async (req, res) => {
@@ -164,7 +134,6 @@ export const getUserProfile = async (req, res) => {
       });
     }
 
-    // ✅ Return static user profile
     if (userId === STATIC_USER_ID) {
       return res.status(200).json({
         success: true,
